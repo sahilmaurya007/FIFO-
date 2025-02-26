@@ -1,75 +1,113 @@
-# FIFO-
+# Synchronous FIFO Memory Implementation
 
-# FIFO Memory Implementation
+## Repository
+[FIFO Memory Project](https://github.com/sahilmaurya007/FIFO-)
 
 ## Overview
-A parameterized FIFO (First-In-First-Out) memory implementation in Verilog with configurable depth and width.
+A parameterized FIFO (First-In-First-Out) memory implementation in Verilog with configurable depth and width, featuring dual-mode output functionality.
 
 ## Features
-- Parameterized design (Default: 8-depth, 4-bit width)
-- Synchronous reset
-- Read/Write operations
-- Status flags:
-  - Full: FIFO is full
-  - Empty: FIFO is empty
-  - Half: FIFO is half or more full
-  - IDLE: No read/write operation
-- Dual-mode output:
-  - Data mode (status=1): Shows memory data
-  - Flag mode (status=0): Shows status flags
+### Core Functionality
+- Parameterized design:
+  - Default depth: 8 words
+  - Default width: 4 bits
+- Synchronous clock operation
+- Configurable read/write operations
+- Dual output modes
 
-## File Structure
+### Control Signals
+- Enable (EN): Global FIFO control
+- Write (WR): Write operation enable
+- Read (RD): Read operation enable
+- Status: Mode selection
+  - Status = 1: Data mode
+  - Status = 0: Flag mode
+
+### Status Flags
+- Full: FIFO buffer is full
+- Empty: FIFO buffer is empty
+- Half: FIFO is half or more full
+- IDLE: No active read/write operation
+
+## Interface Description
+| Signal    | Width  | Direction | Description                    |
+|-----------|--------|-----------|--------------------------------|
+| clk       | 1-bit  | Input     | System clock                  |
+| reset     | 1-bit  | Input     | Synchronous reset             |
+| EN        | 1-bit  | Input     | FIFO enable                   |
+| WR        | 1-bit  | Input     | Write enable                  |
+| RD        | 1-bit  | Input     | Read enable                   |
+| status    | 1-bit  | Input     | Mode select                   |
+| Data_in   | 4-bit  | Input     | Input data bus               |
+| Data_out  | 4-bit  | Output    | Output data/flags bus        |
+| Full      | 1-bit  | Output    | Full flag                    |
+| Empty     | 1-bit  | Output    | Empty flag                   |
+| IDLE      | 1-bit  | Output    | Idle status                  |
+| Half      | 1-bit  | Output    | Half-full flag              |
+
+## Operation Modes
+### Data Mode (status = 1)
+- Data_out shows memory contents during read
+- Sequential read/write operations
+- First-in-first-out data flow
+
+### Flag Mode (status = 0)
+Data_out format: {Full, Half, Empty, IDLE}
+- Bit 3: Full flag
+- Bit 2: Half flag
+- Bit 1: Empty flag
+- Bit 0: IDLE flag
+
+## Project Structure
 ```
 FIFO_Project/
-├── src/
-│   ├── fifo_memory.v     # Main FIFO implementation
-│   └── tb_fifo_memory.v  # Testbench
+├── rtl/
+│   └── fifo_memory.v    # Main FIFO implementation
+├── tb/
+│   └── tb_fifo_memory.v # Testbench file
+├── sim/
+│   └── fifo_in.txt      # Test input data
 └── README.md
 ```
 
-## Port Description
-| Port     | Direction | Width  | Description                    |
-|----------|-----------|--------|--------------------------------|
-| clk      | input     | 1-bit  | Clock signal                  |
-| reset    | input     | 1-bit  | Synchronous reset             |
-| EN       | input     | 1-bit  | Enable signal                 |
-| WR       | input     | 1-bit  | Write enable                  |
-| RD       | input     | 1-bit  | Read enable                   |
-| status   | input     | 1-bit  | Output mode select            |
-| Data_in  | input     | 4-bit  | Input data                    |
-| Data_out | output    | 4-bit  | Output data/flags             |
-| Full     | output    | 1-bit  | FIFO full flag               |
-| Empty    | output    | 1-bit  | FIFO empty flag              |
-| IDLE     | output    | 1-bit  | No operation flag            |
-| Half     | output    | 1-bit  | FIFO half full flag          |
+## Simulation
+### Test Sequence
+1. Reset initialization
+2. Write sequence (8 values)
+3. Read sequence (8 values)
+4. Flag verification
 
-## Usage
+### Expected Output
+- Data Mode:
+  - Sequential values (1-8)
+- Flag Mode:
+  - Final state: 0011 (Empty=1, IDLE=1)
+
+## Usage Instructions
 1. Clone the repository:
 ```bash
-git clone https://github.com/YourUsername/FIFO.git
+git clone https://github.com/sahilmaurya007/FIFO-.git
+cd FIFO-
 ```
 
-2. Open in Vivado:
-   - Create new project
-   - Add source files from src/
-   - Set simulation properties
-   - Run simulation
+2. Create project structure:
+```bash
+mkdir rtl tb sim
+```
 
-## Simulation
-The testbench performs:
-- Reset sequence
-- Write 8 sequential values
-- Read all values
-- Check status flags
-
-## Output Format
-- Data mode (status=1):
-  - Shows actual data values (0-8)
-- Flag mode (status=0):
-  - Shows {Full, Half, Empty, IDLE}
+3. Copy source files to respective directories
+4. Run in Vivado:
+```tcl
+create_project fifo_proj ./fifo_proj -part xc7a35tcpg236-1
+add_files {./rtl/fifo_memory.v ./tb/tb_fifo_memory.v}
+set_property top tb_fifo_memory [get_filesets sim_1]
+launch_simulation
+```
 
 ## Author
-Your Name
+Sahil Maurya
+- GitHub: [sahilmaurya007](https://github.com/sahilmaurya007)
+- Repository: [FIFO-](https://github.com/sahilmaurya007/FIFO-)
 
 ## License
-This project is licensed under the MIT License - see the LICENSE file for details
+MIT License
