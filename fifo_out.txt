@@ -1,0 +1,9 @@
+Data_out: 0001
+Data_out: 0010
+Data_out: 0011
+Data_out: 0100
+Data_out: 0101
+Data_out: 0110
+Data_out: 0111
+Data_out: 1000
+Flags: 0011
