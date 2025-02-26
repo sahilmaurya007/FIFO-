@@ -1,0 +1,111 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: SAHIL MAURYA (Research Schloar IIT Mandi)
+// 
+// Create Date: 27.02.2025 00:39:27
+// Design Name: FIFO Test Bench
+// Module Name: tb_fifo_memory
+// Project Name: 
+// Target Devices:  Xilinx Zybo Z7 xc7z010clg400-1 FPGA
+// Tool Versions: Xilinx Vivado 2019.2
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
+module tb_fifo_memory();
+    reg clk;
+    reg reset;
+    reg EN;
+    reg WR;
+    reg RD;
+    reg status;
+    reg [3:0] Data_in;
+    wire [3:0] Data_out;
+    wire Full;
+    wire Empty;
+    wire IDLE;
+    wire Half;
+
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;
+    end
+
+    // Instantiate FIFO
+    fifo_memory #(
+        .DEPTH(8),
+        .WIDTH(4)
+    ) dut (
+        .clk(clk),
+        .reset(reset),
+        .EN(EN),
+        .WR(WR),
+        .RD(RD),
+        .status(status),
+        .Data_in(Data_in),
+        .Data_out(Data_out),
+        .Full(Full),
+        .Empty(Empty),
+        .IDLE(IDLE),
+        .Half(Half)
+    );
+
+    // Test stimulus
+    initial begin
+        // Initialize
+        reset = 1;
+        EN = 1;
+        WR = 0;
+        RD = 0;
+        status = 1;
+        Data_in = 0;
+
+        // Reset release
+        #20 reset = 0;
+
+        // Write sequence
+        #10;
+        repeat(8) begin
+            @(posedge clk);
+            #1 WR = 1;
+            Data_in = Data_in + 1;
+            @(posedge clk);
+            #1 WR = 0;
+            #8;
+        end
+
+        // Read sequence
+        #10;
+        repeat(8) begin
+            @(posedge clk);
+            #1 RD = 1;
+            @(posedge clk);
+            #1 RD = 0;
+            #8;
+        end
+
+        // Check flags
+        #10 status = 0;
+        #20;
+
+        // End simulation
+        #10 $finish;
+    end
+
+    // Monitor
+    initial begin
+        $monitor("Time=%0t status=%b Data_out=%b Full=%b Half=%b Empty=%b IDLE=%b",
+                 $time, status, Data_out, Full, Half, Empty, IDLE);
+    end
+
+endmodule
